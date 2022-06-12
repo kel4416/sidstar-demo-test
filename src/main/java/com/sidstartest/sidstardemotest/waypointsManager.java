@@ -4,6 +4,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.HttpURLConnection;
@@ -13,10 +14,16 @@ import java.util.*;
 @RestController
 public class waypointsManager {
     @GetMapping("/getTopTwoAssoWaypoints")
-    public JSONObject getTopTwoAssoWaypoints(){
+    public JSONObject getTopTwoAssoWaypoints(@RequestParam String icao,@RequestParam String stdIntrutmentType){
         System.out.println("Start getting top two associated Waypoints for Airport");
+
+        if(icao == null){
+            JSONObject toRet = new JSONObject();
+            toRet.put("Error","Airport icao code not found");
+            return toRet;
+        }
         try {
-            URL url = new URL("https://open-atms.airlab.aero/api/v1/airac/sids/airport/WSSS");
+            URL url = new URL("https://open-atms.airlab.aero/api/v1/airac/" + stdIntrutmentType + "/airport/" + icao);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("api-key", "G9Tw58HE6HDzyq94HFmnd2yOymAuU32k2mEgL3oTVbhLl6E1opu5Hqxb5BASwCWv");
@@ -54,11 +61,11 @@ public class waypointsManager {
                         JSONArray waypoints = (JSONArray)standardInstrument.get("waypoints");
                         for(int j=0; j < waypoints.size();j++){
                             JSONObject waypointData = (JSONObject)waypoints.get(j);
-                            String waypointUID = (String)waypointData.get("uid");
-                            if(waypointsAssociationCount.containsKey(waypointData.get("uid").toString())){
-                                waypointsAssociationCount.put((String)waypointData.get("uid"),waypointsAssociationCount.get(waypointUID)+1);
+                            String waypointUID = (String)waypointData.get("name");
+                            if(waypointsAssociationCount.containsKey(waypointData.get("name").toString())){
+                                waypointsAssociationCount.put((String)waypointData.get("name"),waypointsAssociationCount.get(waypointUID)+1);
                             }else{
-                                waypointsAssociationCount.put((String)waypointData.get("uid"),1);
+                                waypointsAssociationCount.put((String)waypointData.get("name"),1);
                             }
 
                         }
