@@ -46,6 +46,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
+		<finalName>sidstar-test-docker</finalName>
 	</build>
 
 </project>
