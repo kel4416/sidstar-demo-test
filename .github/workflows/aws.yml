@@ -45,12 +45,21 @@ permissions:
   contents: read
 
 jobs:
+
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
     environment: production
 
     steps:
+    - name: Wait for Docker Image to be published
+      uses: lewagon/wait-on-check-action@v1.0.0
+      with:
+        ref: ${{ github.ref }}
+        check-name: 'Build and push Docker image'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        wait-interval: 10
+          
     - name: Checkout
       uses: actions/checkout@v3
 
