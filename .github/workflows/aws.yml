@@ -28,27 +28,9 @@ name: Deploy to Amazon ECS
 
 on:
   registry_package:
-    types: [published,updated]
-  workflow_dispatch:
-   inputs:
-      logLevel:
-        description: 'Log level'     
-        required: true
-        default: 'warning' 
-        type: choice
-        options:
-        - info
-        - warning
-        - debug 
-      tags:
-        description: 'Test scenario tags'
-        required: false 
-        type: boolean
-      environment:
-        description: 'Environment to run tests against'
-        type: environment
-        required: true 
-
+    action:
+      - 'updated'
+ 
 env:
   AWS_REGION: ap-southeast-1                   # set this to your preferred AWS region, e.g. us-west-1
   ECR_REPOSITORY: sidstar-repo                 # set this to your Amazon ECR repository name
