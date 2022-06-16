@@ -27,9 +27,8 @@
 name: Deploy to Amazon ECS
 
 on:
-  push:
-    branches:
-      - "master"
+ registry_package:
+    types: [published]
 
 env:
   AWS_REGION: ap-southeast-1                   # set this to your preferred AWS region, e.g. us-west-1
@@ -52,14 +51,6 @@ jobs:
     environment: production
 
     steps:
-    - name: Wait for Docker Image to be published
-      uses: lewagon/wait-on-check-action@master
-      with:
-        ref: ${{ github.ref }}
-        check-name: 'Build and push Docker image'
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        wait-interval: 10
-          
     - name: Checkout
       uses: actions/checkout@v3
 
