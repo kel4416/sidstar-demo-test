@@ -54,8 +54,9 @@ public class waypointsManager {
                 } else {
                     JSONArray ja = (JSONArray) obj;
 
-                    Map<String,Integer> waypointsAssociationCount = new TreeMap<String,Integer>();
-
+                    HashMap<String,Integer> waypointsAssociationCount = new HashMap<String,Integer>();
+                    int topCount = 0;
+                    int secondCount = 0;
                     for(int i=0; i < ja.size();i++){
                         JSONObject standardInstrument = (JSONObject)ja.get(i);
                         JSONArray waypoints = (JSONArray)standardInstrument.get("waypoints");
@@ -70,21 +71,29 @@ public class waypointsManager {
 
                         }
                     }
-                    SortedSet sortedResults = entriesSortedByValues(waypointsAssociationCount);
-                    List sortedList = sortedResults.stream().toList();
 
+                    //Find top 2 counts
+                    for (Map.Entry<String, Integer> set : waypointsAssociationCount.entrySet()) {
+                        if(set.getValue() > topCount ){
+                          topCount = set.getValue();
+                        } else if(set.getValue() < topCount && set.getValue() > secondCount){
+                            secondCount = set.getValue();
+                        }
+                    }
 
                     JSONObject toReturn = new JSONObject();
                     toReturn.put("aiport","WSSS");
 
                     JSONArray waypointsToReturn = new JSONArray();
-                    for(int j=sortedResults.size() - 1; j > sortedResults.size()-3 ; j--){
-                        JSONObject waypointD = new JSONObject();
-                        Map.Entry waypointEntry = (Map.Entry)sortedList.get(j);
-                        waypointD.put("name",(String)waypointEntry.getKey());
-                        waypointD.put("count",(int)waypointEntry.getValue());
-                        waypointsToReturn.add(waypointD);
+                    for (Map.Entry<String, Integer> set : waypointsAssociationCount.entrySet()) {
+                        if(set.getValue() == topCount || set.getValue() == secondCount){
+                            JSONObject waypointD = new JSONObject();
+                            waypointD.put("name",set.getKey());
+                            waypointD.put("count",set.getValue());
+                            waypointsToReturn.add(waypointD);
+                        }
                     }
+
                     toReturn.put("topWaypoints",waypointsToReturn);
                     return toReturn;
                 }

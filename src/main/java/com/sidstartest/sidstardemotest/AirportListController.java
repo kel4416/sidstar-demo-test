@@ -10,14 +10,16 @@ import org.springframework.web.bind.annotation.RestController;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.http.HttpResponse;
+import java.util.Map;
 import java.util.Scanner;
 
 @RestController
 public class AirportListController {
 
     @GetMapping("/getAirports")
-    public String getAirports(){
+    public JSONObject getAirports(){
         System.out.println("Start Handling get Airports request");
+        JSONObject toRet = new JSONObject();
         try {
             URL url = new URL("https://open-atms.airlab.aero/api/v1/airac/airports");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -44,19 +46,23 @@ public class AirportListController {
                 //Using the JSON simple library parse the string into a json object
                 JSONParser parse = new JSONParser();
                 Object obj = parse.parse(inline);
+
                 if (obj instanceof JSONObject) {
                     JSONObject jo = (JSONObject) obj;
-                    return jo.toString();
+                    toRet.put("data",jo);
+                    return toRet;
                 } else {
                     JSONArray ja = (JSONArray) obj;
-                    return ja.toString();
+                    toRet.put("data", ja);
+                    return toRet;
                 }
             }
         }catch(Exception e){
             System.out.print("Connection Error");
             System.out.println(e.toString());
         }
-        return "Error";
+        toRet.put("Error", "Unsuccessful in retrieving airports");
+        return toRet;
 
     }
 }
