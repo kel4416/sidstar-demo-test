@@ -27,15 +27,7 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-      # This is used to complete the identity challenge
-      # with sigstore/fulcio when running outside of PRs.
-      id-token: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -48,7 +40,13 @@ jobs:
           cache: maven
       - name: Build with Maven
         run: mvn clean install
-      
+  dockerise:
+   needs: build
+   name: Create docker image for app
+   runs-on: ubuntu-latest
+   environment: production
+
+   steps:
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
       #- name: Install cosign
@@ -90,28 +88,10 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      - name: Invoke workflow without inputs. Don't wait for result
-        uses: aurelien-baudet/workflow-dispatch@v2
-        with:
-          workflow: Deploy to Amazon ECS
-          token: ${{ secrets.PERSONAL_TOKEN}}
-          wait-for-completion: false
-      # Sign the resulting Docker image digest except on PRs.
-      # This will only write to the public Rekor transparency log when the Docker
-      # repository is public to avoid leaking data.  If you would like to publish
-      # transparency data even for private images, pass --force to cosign below.
-      # https://github.com/sigstore/cosign
-      #- name: Sign the published Docker image
-      #  if: ${{ github.event_name != 'pull_request' }}
-      #  env:
-      #    COSIGN_EXPERIMENTAL: "true"
-        # This step uses the identity token to provision an ephemeral certificate
-        # against the sigstore community Fulcio instance.
-      # run: cosign sign ${{ steps.meta.outputs.tags }}@${{ steps.build-and-push.outputs.digest }}
-      
+     
   Push_to_AWS:
     needs: build
-    name: Deploy
+    name: Push to AWS
     runs-on: ubuntu-latest
     environment: production
 
