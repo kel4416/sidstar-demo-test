@@ -58,6 +58,8 @@ jobs:
       # with sigstore/fulcio when running outside of PRs.
       id-token: write
    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
       - uses: actions/download-artifact@v1
         with:
           name: jar-artifact
@@ -110,6 +112,8 @@ jobs:
     environment: production
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
     - uses: actions/download-artifact@v1
       with:
           name: jar-artifact
